@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8xr Mini Phone Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a1a; /* Dark background for contrast */
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        .phone-container {
+            width: 200px; /* Fixed width for the phone body */
+            height: 380px; /* Fixed height for the phone body */
+            background-color: #000; /* Black phone body */
+            border-radius: 30px; /* Rounded corners for the phone body */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 0 5px rgba(255, 255, 255, 0.1); /* Shadow and subtle border */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            position: relative;
+            box-sizing: border-box; /* Include padding in width/height */
+        }
+
+        .camera-notch {
+            width: 40px;
+            height: 5px;
+            background-color: #222;
+            border-radius: 5px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .screen {
+            width: 100%; /* Screen takes full width of padding area */
+            height: calc(100% - 60px); /* Adjust height for notch and home button area */
+            background-color: #333;
+            border-radius: 15px; /* Rounded corners for the screen */
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-bar {
+            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent status bar */
+            color: #fff;
+            font-size: 0.6rem;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Align content to bottom */
+            align-items: center;
+            padding-bottom: 10px;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+            position: relative; /* For absolute positioning of time/date */
+        }
+
+        .time-date {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .time-date .date {
+            font-size: 0.8rem;
+            font-weight: 400;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding: 8px 0;
+            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent button bar */
+        }
+
+        .nav-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .home-button {
+            width: 35px;
+            height: 35px;
+            background-color: #222;
+            border-radius: 50%;
+            margin-top: 10px;
+            border: 1px solid #444;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .home-button:hover {
+            background-color: #333;
+        }
+
+        /* Specific screen styles */
+        .app-screen {
+            flex-grow: 1;
+            background-color: #2a2a2a;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .app-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 90%;
+            margin-top: 10px;
+        }
+
+        .app-icon {
+            background-color: #444;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 0.7rem;
+        }
+
+        .app-icon:hover {
+            background-color: #555;
+        }
+
+        .app-icon img {
+            width: 30px;
+            height: 30px;
+            margin-bottom: 4px;
+        }
+
+        .camera-view {
+            flex-grow: 1;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .camera-preview {
+            width: 90%;
+            height: 70%;
+            background-color: #111;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .capture-button {
+            background-color: #e53e3e; /* Red button */
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 0.8rem;
+        }
+
+        .capture-button:hover {
+            background-color: #c53030;
+        }
+
+        .call-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            margin-top: 15px;
+        }
+
+        .call-button {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .call-button.green {
+            background-color: #48bb78; /* Green for call */
+        }
+
+        .call-button.red {
+            background-color: #e53e3e; /* Red for hang up */
+        }
+
+        .call-button:active {
+            transform: scale(0.95);
+        }
+
+        .call-icon {
+            /* Using inline SVG for phone icons */
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="camera-notch"></div>
+        <div class="screen" id="phoneScreen">
+            </div>
+        <div class="home-button" id="homeButton"></div>
+    </div>
+
+    <script>
+        const phoneScreen = document.getElementById('phoneScreen');
+        const homeButton = document.getElementById('homeButton');
+        let currentScreen = 'home'; // 'home', 'menu', 'camera', 'app-detail'
+
+        // Function to get current time and date
+        function updateTimeAndDate() {
+            const now = new Date();
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            const time = now.toLocaleTimeString('en-US', timeOptions);
+            const date = now.toLocaleDateString('en-US', dateOptions);
+            return { time, date };
+        }
+
+        // Render Home Screen
+        function renderHomeScreen() {
+            const { time, date } = updateTimeAndDate();
+            phoneScreen.innerHTML = `
+                <div class="status-bar">
+                    <span>${time.slice(0, 5)}</span> <span>🔋</span> </div>
+                <div class="main-content" style="background-image: url('https://placehold.co/200x380/6666FF/FFFFFF?text=Hot+Air+Balloon');">
+                    <div class="time-date">
+                        ${time}
+                        <div class="date">${date}</div>
+                    </div>
+                    <div class="call-buttons">
+                        <div class="call-button green" id="callButton">
+                            <svg class="call-icon" viewBox="0 0 24 24">
+                                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1v3.5c0 .55-.45 1-1 1C10.74 21 3 13.26 3 3.5c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.02.76-.24 1.02l-2.2 2.2z"/>
+                            </svg>
+                        </div>
+                        <div class="call-button red" id="hangUpButton">
+                            <svg class="call-icon" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="navigation-buttons">
+                    <div class="nav-button" id="menuButton">Menu</div>
+                    <div class="nav-button" id="cameraButton">Camera</div>
+                </div>
+            `;
+            document.getElementById('menuButton').onclick = () => navigateTo('menu');
+            document.getElementById('cameraButton').onclick = () => navigateTo('camera');
+            document.getElementById('callButton').onclick = () => showMessage('Calling...');
+            document.getElementById('hangUpButton').onclick = () => showMessage('Call Ended.');
+
+            // Update time every second
+            if (currentScreen === 'home') {
+                setTimeout(renderHomeScreen, 1000);
+            }
+        }
+
+        // Render Menu Screen
+        function renderMenuScreen() {
+            phoneScreen.innerHTML = `
+                <div class="status-bar">
+                    <span>Menu</span>
+                    <span>🔋</span>
+                </div>
+                <div class="app-screen">
+                    <div class="app-list">
+                        <div class="app-icon" data-app="contacts">
+                            <img src="https://placehold.co/30x30/48bb78/FFFFFF?text=📞" alt="Contacts">
+                            Contacts
+                        </div>
+                        <div class="app-icon" data-app="messages">
+                            <img src="https://placehold.co/30x30/63b3ed/FFFFFF?text=✉️" alt="Messages">
+                            Messages
+                        </div>
+                        <div class="app-icon" data-app="settings">
+                            <img src="https://placehold.co/30x30/a0aec0/FFFFFF?text=⚙️" alt="Settings">
+                            Settings
+                        </div>
+                        <div class="app-icon" data-app="music">
+                            <img src="https://placehold.co/30x30/ed8936/FFFFFF?text=🎵" alt="Music">
+                            Music
+                        </div>
+                        <div class="app-icon" data-app="gallery">
+                            <img src="https://placehold.co/30x30/ecc94b/FFFFFF?text=🖼️" alt="Gallery">
+                            Gallery
+                        </div>
+                        <div class="app-icon" data-app="calendar">
+                            <img src="https://placehold.co/30x30/9f7aea/FFFFFF?text=🗓️" alt="Calendar">
+                            Calendar
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.querySelectorAll('.app-icon').forEach(icon => {
+                icon.onclick = (event) => showMessage(`${event.currentTarget.dataset.app} app opened!`);
+            });
+        }
+
+        // Render Camera Screen
+        function renderCameraScreen() {
+            phoneScreen.innerHTML = `
+                <div class="status-bar">
+                    <span>Camera</span>
+                    <span>🔋</span>
+                </div>
+                <div class="camera-view">
+                    <div class="camera-preview">
+                        <p>Camera Viewfinder</p>
+                        <p>(Simulated)</p>
+                    </div>
+                    <button class="capture-button" id="captureButton">Snap!</button>
+                </div>
+            `;
+            document.getElementById('captureButton').onclick = () => showMessage('Picture taken!');
+        }
+
+        // Show a temporary message on the screen
+        function showMessage(msg) {
+            const messageOverlay = document.createElement('div');
+            messageOverlay.className = 'absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center text-white text-sm z-50 rounded-lg';
+            messageOverlay.textContent = msg;
+            phoneScreen.appendChild(messageOverlay);
+            setTimeout(() => {
+                messageOverlay.remove();
+            }, 1500);
+        }
+
+        // Navigation function
+        function navigateTo(screenName) {
+            currentScreen = screenName;
+            if (screenName === 'home') {
+                renderHomeScreen();
+            } else if (screenName === 'menu') {
+                renderMenuScreen();
+            } else if (screenName === 'camera') {
+                renderCameraScreen();
+            }
+        }
+
+        // Home button always navigates to home screen
+        homeButton.onclick = () => navigateTo('home');
+
+        // Initial render
+        window.onload = function() {
+            navigateTo('home');
+        };
+    </script>
+</body>
+</html>
